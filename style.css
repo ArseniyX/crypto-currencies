@@ -1,0 +1,239 @@
+* {
+  transition: all .5s ease-in-out;
+}
+
+body {
+  background-image: url("images/crypto-background.jpg");
+  background-attachment: fixed;
+}
+
+.body-wrapper {
+  margin: -80px auto;
+  width: 85%;
+  height: 100%;
+  background-color: rgba(27, 3, 95, 0.7);
+  border-radius: 25px;
+  padding: 30px;
+}
+
+.logo {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4rem;
+  margin: 20px auto;
+  margin-top: 20px;
+}
+
+.logo-text {
+  margin: auto 0;
+  color: #fff;
+  cursor: pointer;
+}
+
+.logo-image {
+  width: 771px;
+  height: 95px;
+  background-image: url("/images/arseniyx.svg");
+  background-attachment: fixed;
+  background-position: top;
+  background-size: 40vw;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.logo-wrapper {
+  margin-top: 20px;
+  border-radius: .25rem;
+}
+
+.nav-pills {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: .25rem;
+  padding: .25rem;
+}
+
+.nav-pills:hover {
+  background-color: #fff;
+}
+
+.nav-link {
+  border-radius: 50%;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  opacity: 0.8;
+
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #AB40FF;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked+.slider {
+  background-color: #43A9E2;
+}
+
+input:focus+.slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:disabled+.slider::before {
+  background-color: #ddd;
+}
+
+input:checked+.slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.progress {
+  display: block;
+  text-align: center;
+  width: 0;
+  height: 3px;
+  background: #f4a261;
+  transition: width .3s;
+}
+
+.progress.hide {
+  opacity: 0;
+  transition: opacity 1.3s;
+}
+
+.card-deck {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 25px auto;
+}
+
+.card {
+  background-color: black;
+  margin: 1rem 0.5rem;
+  border: none;
+  border-radius: 15px;
+  margin-top: 0 !important;
+}
+
+.main-card {
+  width: 24vw;
+  color: #43A9E2;
+  background-size: cover;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background-image: url("images/Card.svg");
+}
+
+.header-card__container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.form-inline.my-2.my-lg-0 {
+  display: flex;
+  height: 3rem;
+}
+
+nav {
+  justify-content: space-between;
+  margin: auto;
+  width: 85%;
+}
+
+.list-group-item-dark {
+  color: #43A9E2;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #333;
+}
+
+.image-wrapper {
+  width: 250px;
+  height: 250px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.chart {
+  height: 30rem;
+
+}
+
+.more-info {
+  background: #43A9E2;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  backdrop-filter: blur(4px);
+
+  /* Note: backdrop-filter has minimal browser support */
+  border-radius: 100px;
+  border: none;
+}
+
+
+
+.search-input {
+  background-color: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 0.2);
+  width: 50px;
+  border-radius: 50%;
+  transition: border-radius .5s ease-in-out;
+}
+
+.form-inline:hover .search-input {
+  width: 100%;
+  border-radius: .25rem;
+}
+
+.search-input:focus {
+  width: 100%;
+  border-radius: .25rem;
+}
+
+.bi-search {
+  margin-left: -40px;
+  margin-top: auto;
+  margin-bottom: auto;
+}
