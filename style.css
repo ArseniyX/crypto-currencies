@@ -33,7 +33,7 @@ body {
 .logo-image {
   width: 771px;
   height: 95px;
-  background-image: url("/images/arseniyx.svg");
+  background-image: url("https://raw.githubusercontent.com/ArseniyX/crypto-currencies/ae515d005ab5e788236d0657e2c85d2ae5330e8e/images/arseniyx.svg");
   background-attachment: fixed;
   background-position: top;
   background-size: 40vw;
