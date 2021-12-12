@@ -26,14 +26,16 @@
 	<div class="body-wrapper">
 
 		<header>
-			<div class="progress"></div>
+				<div class="spinner-border spinner" role="status">
+					<span class="sr-only"></span>
+				</div>
 			<div class="logo">
 				<div class="logo-wrapper">
 					<div class="logo-image" alt="logo" onclick="$('.home-tab').trigger('click');"></div>
 				</div>
 			</div>
 			<nav>
-				<div style="display: flex; justify-content: space-between;">
+				<div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
 					<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
 						<li class="nav-item" role="presentation">
 							<button class="nav-link active home-tab" id="pills-home-tab" data-bs-toggle="pill"
@@ -61,6 +63,7 @@
 						<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-search"
 							viewBox="0 0 16 16">
 							<path
+							fill="#fff"
 								d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
 						</svg>
 					</form>
@@ -74,7 +77,7 @@
 	</div>
 	<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
 	<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
-	<script type="text/javascript" src="./script.js">
+	<script type="module" src="./script.js">
 	</script>
 </body>
 
