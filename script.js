@@ -68,7 +68,7 @@ function dataFromStorage() {
   return JSON.parse(localStorage.getItem(DATA));
 }
 
-let cashedItems = {};
+let buttonState = {};
 let currencies = ["BTC"];
 let isFirstLoad = true;
 let nIntervalId;
@@ -140,15 +140,9 @@ const isFirstLoading = () => {
   return !firstLoading;
 };
 
-const wasLoaded = (id) => {
-  if (!cashedItems[id]) return true;
-  const seconds = Date.now();
-  return !cashedItems[id];
-};
-
 const compareTime = (id) => {
   const itemJson = localStorage.getItem(id);
-
+  if(!buttonState[id]) return false
   if (!itemJson) return true;
 
   const item = JSON.parse(itemJson);
@@ -157,7 +151,7 @@ const compareTime = (id) => {
   const timeDifference = timeNow - timeBefore;
   if (timeDifference >= 120000) return true;
   const { index, crypto, image } = item;
-  if (!cashedItems[id]) {
+  if (itemJson) {
     $("#collapse-" + index).html(collapseElement(...crypto, image));
   }
   return false;
@@ -165,14 +159,15 @@ const compareTime = (id) => {
 
 async function onMoreButton(buttonElement) {
   const { id, index } = buttonElement.dataset;
+  buttonState = { ...buttonState, [id]: !buttonState[id] };
   const hasAccess = compareTime(id);
-
+  console.log(buttonState);
+  
   if (hasAccess) {
     const data = await fetchData(API.COIN_INFO, id);
     const timeNow = Date.now();
     localStorage.setItem(id, timeNow.toString());
-    console.log(cashedItems);
-    cashedItems = { ...cashedItems, [id]: !cashedItems[id] };
+
     const { usd, eur, ils } = data.market_data?.current_price || "";
     let crypto = [usd, eur, ils];
     crypto = crypto.map((el) => numberWithCommas(el));
@@ -243,7 +238,7 @@ const createOptions = () => {
   const data = currencies.map((name) => {
     const dataPoints = [];
     return {
-      type: "splineArea",
+      type: "line",
       axisXIndex: 0,
       showInLegend: true,
       name,
@@ -268,7 +263,6 @@ const createOptions = () => {
       crosshair: {
         enabled: true,
       },
-      
     },
     axisX: {
       suffix: "s",
@@ -297,7 +291,7 @@ const createChart = async () => {
   const data = await getDataFromApi();
   const options = createOptions(data);
   $(CHART).CanvasJSChart(options);
-  await renderChart();
+  await updateChart();
   toggleMainLoading();
 };
 
@@ -305,7 +299,7 @@ const getDataFromApi = () => $.ajax(multiCheckPrice(currencies.join(",")));
 
 const dataToPoint = (data, name, x) => ({ x, y: data[name].USD });
 
-const renderChart = async () => {
+const updateChart = async () => {
   const chart = $(CHART).CanvasJSChart();
   const data = await getDataFromApi();
   chart.options.data.forEach((option) => {
@@ -319,7 +313,7 @@ const renderChart = async () => {
 const startLiveReports = () => {
   createChart();
   if (!nIntervalId) {
-    nIntervalId = setInterval(renderChart, 2000);
+    nIntervalId = setInterval(updateChart, 2000);
   }
 };
 
@@ -333,7 +327,7 @@ const onToggleButton = () => {
   // Less then four
   const isLessThenFive = $(".toggle-button:checked").length > 4;
   toggleBtn.not(":checked").attr("disabled", isLessThenFive);
-}
+};
 
 $(window).on(UNLOAD, () => {
   localStorage.removeItem(DATA);
