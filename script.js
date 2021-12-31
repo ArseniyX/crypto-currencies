@@ -1,13 +1,12 @@
 // Constants
-const API = {
-  COINS_LIST:
-    "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false",
-  COIN_INFO: "https://api.coingecko.com/api/v3/coins/",
-};
-const multiCheckPrice = (currencies) =>
-  `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${currencies}&tsyms=USD`;
+import { API, COLORS } from "./constants.js";
+// Elements
+import { cardElement, collapseElement, dialogElement } from "./elements.js";
+// Util functions
+import { numberWithCommas, getItem, setItem } from "./utils.js";
 
 const DATA = "data";
+const SMART_SEARCH = "smart-search";
 const CLICK = "click";
 const KEYUP = "keyup";
 const CARD_DECK = ".card-deck";
@@ -16,99 +15,117 @@ const UNLOAD = "unload";
 
 const SEARCH_INPUT = $(".search-input");
 
-// Elements
-const cardElement = ({ name, id, symbol }, index) => `
-  <div class="card main-card mt-4" style="flex: none;" id="card-${index}">
-    <div class="card-body">
-      <div class="header-card__container">
-        <h5 class="card-title">${symbol.toUpperCase()}</h5>
-        <label class="switch">
-          <input type="checkbox" class="toggle-button" data-symbol="${symbol.toUpperCase()}">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      
-      <p class="card-text">${name}</p>
-      <button type="button" class="btn btn-primary more-info" data-index="${index}" data-toggle="collapse"
-        data-target="#id-${index}" data-id="${id}" data-bs-toggle="collapse" data-bs-target="#id-${index}"
-        aria-expanded="false" aria-controls="id-${index}">
-        <span class="spinner-border spinner-border-sm loading-${id}" role="status" aria-hidden="true"
-          style="display:none"></span>
-        <span class="more-info-${id}">More info</span>
-        <span class="loading-${id}" style="display:none">Loading...</span>
-      </button>
-      <div class="collapse mt-3" id="id-${index}">
-        <div class="card card-body" id="collapse-${index}"></div>
-      </div>
-    </div>
-  </div>
-  `;
-
-const collapseElement = (usd, eur, ils, image) => {
-  return `
-  <div>
-    <div class="image-wrapper">
-      <img src="${image}" alt="image"/>
-    </div>
-    <ul class="list-group mt-2">
-      <li class="list-group-item list-group-item-dark">\$${usd}</li>
-      <li class="list-group-item list-group-item-dark">€${eur}</li>
-      <li class="list-group-item list-group-item-dark" >₪${ils}</li>
-    </ul>
-  </div>
-  `;
-};
-
-// Util functions, poor functions
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-function dataFromStorage() {
-  return JSON.parse(localStorage.getItem(DATA));
-}
-
+// Global variables
 let buttonState = {};
 let currencies = ["BTC"];
 let isFirstLoad = true;
+let dialogState = true;
 let nIntervalId;
 let seconds = 0;
 
-onload = () => {
+$(() => {
+  const value = !!getItem(SMART_SEARCH);
+  switchVisibility(".submit-button", value);
+
   if (isFirstLoading()) {
     firstLoading();
   } else {
     const data = dataFromStorage();
-    createElements(data);
+    filterElements(data);
     $(".spinner").hide();
   }
   createListeners();
-};
+});
 
-// LISTENERS
+// Listeners
 const createListeners = () => {
   SEARCH_INPUT.on(KEYUP, onSearchKeyUpListener);
   $(".home-tab").on(CLICK, onHomeTabListener);
   $(".live-reports-tab").on(CLICK, onLiveReportsTabListener);
   $(".about-tab").on(CLICK, onAboutTabListener);
+  $(".submit-button").on(CLICK, onSearchButton);
+  $(".smart-search").on(CLICK, onSmartSearch);
+  $(".close-button, .save-button").on(CLICK, onCancelButton);
+  $(".dialog-container").on(CLICK, onCancelButton);
+  $(".dialog-content").on(CLICK, (e) => e.stopPropagation());
+};
+
+const onCancelButton = () => {
+  const isLessThenFive = $(".toggle-button:checked").length === 5;
+  $(".dialog-container").css("visibility", "hidden");
+  if (!isLessThenFive) {
+    $(".toggle-button").parent().off(CLICK);
+  }
+
+  dialogState = true;
 };
 
 const onSearchKeyUpListener = (e) => {
   if (e.key === "Enter" || e.keyCode === 13) {
   }
+  const stateSmartBtn = !!getItem(SMART_SEARCH);
+  if (stateSmartBtn) {
+    filterElements();
+  }
+};
+
+const onSearchButton = (e) => {
+  e.preventDefault();
   filterElements();
 };
 
 const onHomeTabListener = () => {
-  $(CARD_DECK).show();
-
+  hideAboutPage();
   stopLiveReports();
+  $(CARD_DECK).show();
+  $(".form-inline").show();
+  $(".smart-search-container").show();
 };
 
 const onLiveReportsTabListener = () => {
-  $(CARD_DECK).hide();
+  hideAboutPage();
+  hideHome();
   $(CHART).show();
-  startLiveReports();
+  if (seconds === 0) {
+    startLiveReports();
+  }
+};
+
+const onAboutTabListener = () => {
+  hideHome();
+  stopLiveReports();
+  $(".about-page").show();
+};
+
+const onSmartSearch = () => {
+  const state = !!getItem(SMART_SEARCH);
+  changeState(SMART_SEARCH, state);
+  switchVisibility(".submit-button", !state);
+};
+
+const hideHome = () => {
+  $(`${CARD_DECK}, .form-inline, .smart-search-container`).hide();
+};
+
+const hideAboutPage = () => {
+  $(".about-page").hide();
+};
+
+// this function change state of item in local storage
+const changeState = (key, state) => {
+  if (state) {
+    setItem(key, "");
+  } else {
+    setItem(key, 1);
+  }
+};
+
+const switchVisibility = (el, bool) => {
+  if (bool || bool === "true") {
+    $(el).hide();
+  } else {
+    $(el).show();
+  }
 };
 
 const stopLiveReports = () => {
@@ -119,39 +136,44 @@ const stopLiveReports = () => {
   seconds = 0;
 };
 
-const onAboutTabListener = () => {
-  stopLiveReports();
-};
+function dataFromStorage() {
+  return JSON.parse(getItem(DATA));
+}
 
 const firstLoading = async () => {
   toggleMainLoading();
-  const data = await $.ajax(API.COINS_LIST);
+  const data = await sortAPI(API.COINS_LIST);
   toggleMainLoading();
-
-  localStorage.setItem(DATA, JSON.stringify(data));
+  setItem(DATA, data);
   if (!!data) {
-    createElements(data);
+    filterElements(data);
     isFirstLoad = false;
   }
 };
 
+const sortAPI = (api) =>
+  $.ajax(api)
+    .then((resp) =>
+      resp.map((el) => ({ id: el.id, name: el.name, symbol: el.symbol }))
+    )
+    .fail((err) => console.error(err));
+
 const isFirstLoading = () => {
-  const firstLoading = localStorage.getItem(DATA);
+  const firstLoading = getItem(DATA);
   return !firstLoading;
 };
 
 const compareTime = (id) => {
-  const itemJson = localStorage.getItem(id);
-  if(!buttonState[id]) return false
-  if (!itemJson) return true;
+  const item = getItem(id);
+  if (!buttonState[id]) return false;
+  if (!item) return true;
 
-  const item = JSON.parse(itemJson);
   const timeNow = Date.now();
   const timeBefore = +item.timeStamp;
   const timeDifference = timeNow - timeBefore;
   if (timeDifference >= 120000) return true;
   const { index, crypto, image } = item;
-  if (itemJson) {
+  if (item) {
     $("#collapse-" + index).html(collapseElement(...crypto, image));
   }
   return false;
@@ -162,11 +184,11 @@ async function onMoreButton(buttonElement) {
   buttonState = { ...buttonState, [id]: !buttonState[id] };
   const hasAccess = compareTime(id);
   console.log(buttonState);
-  
+
   if (hasAccess) {
     const data = await fetchData(API.COIN_INFO, id);
-    const timeNow = Date.now();
-    localStorage.setItem(id, timeNow.toString());
+    const timeStamp = Date.now();
+    localStorage.setItem(id, timeStamp.toString());
 
     const { usd, eur, ils } = data.market_data?.current_price || "";
     let crypto = [usd, eur, ils];
@@ -176,36 +198,47 @@ async function onMoreButton(buttonElement) {
       index,
       crypto,
       image,
-      timeStamp: timeNow,
+      timeStamp,
     };
-    const jsonItem = JSON.stringify(item);
-    localStorage.setItem(id, jsonItem);
+    setItem(id, item);
     $("#collapse-" + index).html(collapseElement(...crypto, image));
   }
 }
 
 function createElements(data, filteredValue = "") {
   data.forEach((element, index) => {
-    if (!filteredValue && isFirstLoad) {
+    if (isFirstLoad) {
       $(cardElement(element, index)).appendTo(CARD_DECK);
     }
 
     const name = element.name.toLowerCase();
+
     const symbol = element.symbol.toLowerCase();
-    if (name.includes(filteredValue) || symbol.includes(filteredValue)) {
-      $("#card-" + index).show();
+
+    const smartButtonState = !!getItem(SMART_SEARCH);
+
+    if (smartButtonState) {
+      const value =
+        name.includes(filteredValue) || symbol.includes(filteredValue);
+
+      switchVisibility("#card-" + index, !value);
     } else {
-      $("#card-" + index).hide();
+      const value = symbol === filteredValue || filteredValue === "";
+      switchVisibility("#card-" + index, !value);
     }
   });
+
   if (isFirstLoad) {
     const moreBtn = $(".more-info").get();
+
     const toggleBtn = $(".toggle-button");
+
     moreBtn.forEach((button) => {
       $(button).on(CLICK, function () {
         onMoreButton(this);
       });
     });
+
     toggleBtn.on(CLICK, function () {
       onToggleButton(this);
     });
@@ -213,7 +246,8 @@ function createElements(data, filteredValue = "") {
 }
 
 const filterElements = () => {
-  const inputValue = SEARCH_INPUT.val();
+  const inputValue = SEARCH_INPUT.val() || "";
+
   const data = dataFromStorage();
   createElements(data, inputValue.toLowerCase());
 };
@@ -235,6 +269,8 @@ function toggleMainLoading() {
 }
 
 const createOptions = () => {
+  CanvasJS.addColorSet("crypto", COLORS);
+
   const data = currencies.map((name) => {
     const dataPoints = [];
     return {
@@ -252,27 +288,13 @@ const createOptions = () => {
     animationEnabled: true,
     theme: "dark1",
     backgroundColor: "",
+    colorSet: "crypto",
     title: {
+      fontColor: "#43A9E2",
       text: "Live Reports: " + currencies.join(", "),
     },
-    axisY: {
-      includeZero: false,
-      prefix: "$",
-      lineThickness: 0,
-      logarithmic: true,
-      crosshair: {
-        enabled: true,
-      },
-    },
-    axisX: {
-      suffix: "s",
-      minimum: 0,
-      // interval: 2,
-      intervalType: "second",
-      crosshair: {
-        enabled: true,
-      },
-    },
+    axisY: CHART.axisY,
+    axisX: CHART.axisX,
     toolTip: {
       shared: true,
     },
@@ -282,7 +304,6 @@ const createOptions = () => {
     },
     data,
   };
-  console.log(options);
   return options;
 };
 
@@ -295,13 +316,15 @@ const createChart = async () => {
   toggleMainLoading();
 };
 
-const getDataFromApi = () => $.ajax(multiCheckPrice(currencies.join(",")));
+const getDataFromApi = () => $.ajax(API.multiCheckPrice(currencies.join(",")));
 
 const dataToPoint = (data, name, x) => ({ x, y: data[name].USD });
 
 const updateChart = async () => {
   const chart = $(CHART).CanvasJSChart();
+
   const data = await getDataFromApi();
+
   chart.options.data.forEach((option) => {
     const point = dataToPoint(data, option.name, seconds);
     option.dataPoints.push(point);
@@ -323,11 +346,43 @@ const onToggleButton = () => {
   const toggleBtn = $(".toggle-button");
   const checkedButtons = $(".toggle-button:checked").get();
   currencies = getFromDataset(checkedButtons);
-  console.log(currencies.join(","));
-  // Less then four
-  const isLessThenFive = $(".toggle-button:checked").length > 4;
+  // Less then five
+  const isLessThenFive = $(".toggle-button:checked").length === 5;
   toggleBtn.not(":checked").attr("disabled", isLessThenFive);
+  if (isLessThenFive) {
+    const parent = $(".toggle-button:disabled").parent();
+    parent.off(CLICK);
+    parent.on(CLICK, function () {
+      showDialogWindow(this);
+    });
+    dialogState = false;
+  }
 };
+
+const showDialogWindow = (context) => {
+  const child = $(context).children()["0"];
+  const isDisabled = !!$(child).attr("disabled");
+  if (isDisabled) {
+    const isLessThenFive = $(".toggle-button:checked").length === 5;
+    if (!isLessThenFive) return;
+
+    $(".dialog-list").empty();
+    $(".dialog-container").css("visibility", "visible");
+    const checkedButtons = $(".toggle-button:checked").get();
+    const names = getFromDataset(checkedButtons);
+
+    names.forEach((el) => {
+      $(dialogElement(el)).appendTo(".dialog-list");
+    });
+    $(".inputs").each(function (index) {
+      $(this).on(CLICK, () => triggerSwitchButton(checkedButtons, index));
+    });
+  }
+};
+
+function triggerSwitchButton(btn, index) {
+  $($(btn)[index]).trigger(CLICK);
+}
 
 $(window).on(UNLOAD, () => {
   localStorage.removeItem(DATA);

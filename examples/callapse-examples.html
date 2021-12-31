@@ -22,11 +22,13 @@
 
 <body>
   <div>
-    <img src="${image}" alt="image" style="width: 230px" />
+    <div class="image-wrapper">
+      <img src="${image}" alt="image" />
+    </div>
     <ul class="list-group mt-2">
-      <li class="list-group-item">${usd}\$</li>
-      <li class="list-group-item">${eur}€</li>
-      <li class="list-group-item">${ils}₪</li>
+      <li class="list-group-item list-group-item-dark">\$${usd}</li>
+      <li class="list-group-item list-group-item-dark">€${eur}</li>
+      <li class="list-group-item list-group-item-dark">₪${ils}</li>
     </ul>
   </div>
 </body>

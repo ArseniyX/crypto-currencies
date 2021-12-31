@@ -1,0 +1,19 @@
+search input:
+  ✔ add toggle button for smart search 13:57 @done (14/12/2021, 14:04:54)
+  ✔ enable the smart search 15/12/21 13:21:49 @done (15/12/2021, 23:30:20)
+  ✔ add styles 15/12/21 23:30:46 @done (15/12/2021, 23:44:40)
+
+settings for chart:
+  ☐ add container for setting
+  ☐ add button that opens container
+  ☐ add settings for chart that will saved to storage
+  ☐ add styles for container
+
+about page:
+  ☐ write text about project
+  ☐ add image
+
+dialog:
+  ✔ write css for dialog 20/12/21 13:27:44 @done (20/12/2021, 13:45:07)
+  ✔ write cancel button logic @done (20/12/2021, 14:44:25)
+  ✔ add checked currencies to dialog @done (20/12/2021, 14:53:44)
